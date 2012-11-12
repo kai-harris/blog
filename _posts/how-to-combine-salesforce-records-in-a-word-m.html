@@ -1,0 +1,44 @@
+title: How to combine Salesforce records in a Word mail merge
+date: 2011/01/04 00:05:46 -0800
+tags: [{"name":"howto","id":27253096},{"name":"nonprofit","id":27253094},{"name":"salesforce","id":27253095}]
+author: Kai Harris
+alias: /how-to-combine-salesforce-records-in-a-word-m
+
+<h2 style="font-size: 1.5em;">Alternate title: Adventures in creating Annual Contribution Statements</h2>
+<p>Salesforce reports are great at grouping together information by category. &nbsp;For example, grouping all Donations (Opportunities in standard Salesforce language) by Organization (Account) to create a list of donations for merging into a letter to send to your donors. &nbsp;Unfortunately, upon export to Excel, the grouping is lost - each donation is its own record in the Excel file. &nbsp;Using the standard Mail Merge process in Word, each of those records would create a new merge document.</p>
+<p><div class='p_embed p_image_embed'>
+<img alt="Sample-data-salesforce-export" height="149" src="/media/getfile/files.posterous.com/temp-2011-01-04/gJyGklcyibcJqhsdrxmepcoCfrzndoEktzjuFIykAyaJqBsuvubGHAzihvkk/sample-data-salesforce-export.png.scaled500.png" width="238" />
+<a href="/media/getfile/files.posterous.com/temp-2011-01-04/awFwIapkodfmnhnzdmtkdsdEdatfadvcIhrDEdpyJCrkmrgkqCqlcEoAaeJH/sample-letter-single-donation.png.scaled1000.png"><img alt="Sample-letter-single-donation" height="256" src="/media/getfile/files.posterous.com/temp-2011-01-04/awFwIapkodfmnhnzdmtkdsdEdatfadvcIhrDEdpyJCrkmrgkqCqlcEoAaeJH/sample-letter-single-donation.png.scaled500.png" width="500" /></a>
+<a href="/media/getfile/files.posterous.com/temp-2011-01-04/zfbmzgiEqtJGskrvfAlnsznGBCpnqegwavJewujfepGzIeHevdgjepjxiIwo/sample-letter-multiple-donations.png.scaled1000.png"><img alt="Sample-letter-multiple-donations" height="272" src="/media/getfile/files.posterous.com/temp-2011-01-04/zfbmzgiEqtJGskrvfAlnsznGBCpnqegwavJewujfepGzIeHevdgjepjxiIwo/sample-letter-multiple-donations.png.scaled500.png" width="500" /></a>
+<div class='p_see_full_gallery'><a href="http://blog.kaiharris.com/how-to-combine-salesforce-records-in-a-word-m">See the full gallery on Posterous</a></div>
+</div>
+</p>
+<p>A recent thread over at the&nbsp;<a href="http://groups.google.com/group/npsf">Nonprofit Salesforce Practitioners</a>&nbsp;group tackled this problem and this blog post expands on my contribution to that thread. &nbsp;If you have the excellent&nbsp;<a href="http://sites.force.com/appexchange/listingDetail?listingId=a0N300000016b7FEAQ">Conga&nbsp;Composer</a>, Crystal Reports, or Access experience this isn't a difficult problem. &nbsp;But it is also possible to create this mail merge using only the Excel export and Word mail merge.</p>
+<h3 style="font-size: 1.17em;">Mail Merge categories to the rescue</h3>
+<p>Word can combine records in a mail merge data set if the merge document type is set to "Directory" (on Windows) or "Catalog" (on OS X) and if you use conditional merge fields.</p>
+<p><div class='p_embed p_image_embed'>
+<img alt="Set-merge-doc-category" height="504" src="/media/getfile/files.posterous.com/temp-2011-01-04/aCmqAovweJbqzoDrAHFxijueBfbetCAHBlfqkejhHitpoypptyrwJJgorAhj/set-merge-doc-category.png.scaled500.png" width="408" />
+</div>
+</p>
+<p>After setting the merge document type, choose the Salesforce Excel export as the data source. &nbsp;Now we're ready to insert the merge fields. &nbsp;My solution is attached as the image below (sorry it's an image, can't copy/paste field codes out of Word). &nbsp;This example uses Organization_Name as the category field - the if statements cause the merge to iterate over multiple rows of data, inserting a new donation for each row until Organization_Name changes.</p>
+<p>A few important notes:</p>
+<ul>
+<li>Insert merged fields with Field braces (cmd/ctrl F9 or otherwise remapped) and not the { you get from Shift-[.   
+<ul>
+<li>I'm on a Mac and needed to change the cmd-F9 mapping used to insert a field code since it conflicts with Expos&eacute; (I changed it to cmd-F6)</li>
+</ul>
+</li>
+<li>The merge document type needs to be set as a "Catalog" (Mac) or "Directory" (Windows)</li>
+<li>It throws an error and the first page of the merge isn't correct, but the first record gets put correctly into the second page of the merge and then all subsequent merges are correct)</li>
+<li>It's really easy to miss quote marks, spaces, and field nesting - pay close attention to those</li>
+<li>Anything typed into the area where I have "Thank you" displays after the merged fields</li>
+<li>There are tabs in the below merge document to space out the donation date and the amount, though you can't really tell from the image</li>
+</ul>
+<p><div class='p_embed p_image_embed'>
+<a href="/media/getfile/files.posterous.com/temp-2011-01-04/GrboyEyFbpoBumAJpDjfxCbrmlzcxFIcicjgpFoixluevxgGDGEntaaxunss/mailmerge.png.scaled1000.png"><img alt="Mailmerge" height="313" src="/media/getfile/files.posterous.com/temp-2011-01-04/GrboyEyFbpoBumAJpDjfxCbrmlzcxFIcicjgpFoixluevxgGDGEntaaxunss/mailmerge.png.scaled500.png" width="500" /></a>
+<a href="/media/getfile/files.posterous.com/temp-2011-01-04/pzvmdjlfpmCgDlrfFtueBjxuyJigxepcgwimuqrFzkigswBDCuoGlkvhyfoy/sample-letter-multiple-donations.png.scaled1000.png"><img alt="Sample-letter-multiple-donations" height="272" src="/media/getfile/files.posterous.com/temp-2011-01-04/pzvmdjlfpmCgDlrfFtueBjxuyJigxepcgwimuqrFzkigswBDCuoGlkvhyfoy/sample-letter-multiple-donations.png.scaled500.png" width="500" /></a>
+<div class='p_see_full_gallery'><a href="http://blog.kaiharris.com/how-to-combine-salesforce-records-in-a-word-m">See the full gallery on Posterous</a></div>
+</div>
+</p>
+<h3 style="font-size: 1.17em;">Further Reading / Resources:</h3>
+<p><a href="http://cornell.veplan.net/article.aspx?&amp;a=3815">http://cornell.veplan.net/article.aspx?&amp;a=3815<br /></a><a href="http://support.microsoft.com/kb/294686">http://support.microsoft.com/kb/294686<br /></a><a href="http://groups.google.com/group/npsf/browse_thread/thread/716036129c0ebddf#">http://groups.google.com/group/npsf/browse_thread/thread/716036129c0ebddf#</a>&nbsp;</p>

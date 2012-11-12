@@ -1,0 +1,88 @@
+title: iOS video streaming and HTML5
+date: 2010/10/24 21:15:00 -0700
+tags: [{"name":"howto","id":19592868}]
+author: Kai Harris
+alias: /ios-video-streaming-and-html5
+
+<h2>HTTP Live Streaming (Adaptive Bitrate Encoding) on an HTML5 page</h2>
+
+<p>This post details how I added HTTP Living Streaming (also known as Adaptive Bitrate Encoding) support to an existing HTML5 video page with 640x360 videos.</p>
+
+<p>HTML5 is supposed to make adding video to a webpage as simple as adding an image or a link or any other html component.  The reality is a little more complicated at this stage because not all browsers support the same kinds of video (though hopefully the emergence of the <a href="http://en.wikipedia.org/wiki/WebM">WebM video codec</a> will solve this).  Luckily, there are projects like <a href="http://camendesign.com/code/video_for_everybody">Video for Everybody</a> that help us laymen set up HTML5 with fallback to Flash for browsers that don&rsquo;t support HTML5.  The Video for Everybody tutorial does not include using <a href="http://developer.apple.com/library/ios/#documentation/NetworkingInternet/Conceptual/StreamingMediaGuide/Introduction/Introduction.html">HTTP Live Streaming</a> for iPhones and iPads.  This technique allows these devices to dynamically set the quality of video they receive depending on how good their internet connection is.  If they are on WiFi, they get the highest quality video but if they are on 3G or Edge, they get lower quality video.</p>
+
+<h2>Encode your videos</h2>
+
+<p>I used encoding.com to create mp4, ogg, webm for regular computer viewing and iPhone streaming formatted files for iPhone and iPad viewing.  For the mp4, ogg, and webm files, the only changes I made from the default settings was changing the dimensions of the videos to 640x360, upping the bit rate to 1024k, and making sure that VBR (or Variable Bit Rate) was selected.  For mp4 only, I also changed the video codec to libx264 and the profile to baseline.</p>
+
+<p>For iPhone streaming, I changed the dimensions to 480x256 and didn&rsquo;t change any other default settings.</p>
+
+<h2>Putting the pieces together</h2>
+
+<p>Now that the videos have been encoded, it&rsquo;s time to put them online and create the HTML5 page.  The following assumes that you have access to the webserver where you will be hosting the HTML5 page, you have uploaded the video files and the Video for Everybody files, and that you have a basic understanding of HTML and webservers.</p>
+
+<h3>Setting mime-types in via .htaccess</h3>
+
+<p>In addition to the ogg, mp4, and webm mime-types that are added to .htaccess per the <a href="http://camendesign.com/code/video_for_everybody#notes">Video for Everybody instructions</a>, add the following for Live Streaming:</p>
+
+<div class="CodeRay">
+  <div class="code"><pre>AddType application/x-mpegURL .m3u8
+AddType video/MP2T .ts</pre></div>
+</div>
+
+
+<p>So, the complete mime-type section of your .htaccess will look like:</p>
+
+<div class="CodeRay">
+  <div class="code"><pre>AddType video/ogg  .ogv
+AddType video/mp4  .mp4
+AddType video/webm .webm
+AddType application/x-mpegURL .m3u8
+AddType video/MP2T .ts</pre></div>
+</div>
+
+
+<h3>The HTML5 page</h3>
+
+<p>This code sample is straight from the <a href="http://camendesign.com/code/video_for_everybody#video-code">Video for Everybody sample</a>.  The only difference is that I&rsquo;ve changed the dimensions to the dimensions of my video and added a single source line for the streaming instructions .m3u8 XML file.</p>
+
+<p><div class="data type-html-php">
+      <table class="lines" cellspacing="0" cellpadding="0">
+        <tr>
+          <td>
+            <pre class="line_numbers"><span rel="#L1" id="L1">1</span>
+<span rel="#L2" id="L2">2</span>
+<span rel="#L3" id="L3">3</span>
+<span rel="#L4" id="L4">4</span>
+<span rel="#L5" id="L5">5</span>
+<span rel="#L6" id="L6">6</span>
+<span rel="#L7" id="L7">7</span>
+<span rel="#L8" id="L8">8</span>
+<span rel="#L9" id="L9">9</span>
+<span rel="#L10" id="L10">10</span>
+<span rel="#L11" id="L11">11</span>
+<span rel="#L12" id="L12">12</span>
+<span rel="#L13" id="L13">13</span>
+<span rel="#L14" id="L14">14</span>
+<span rel="#L15" id="L15">15</span>
+<span rel="#L16" id="L16">16</span>
+</pre>
+          </td>
+          <td width="100%">
+                <div class="highlight"><pre /><div class="line" id="LC1"><span class="nt">&lt;body&gt;</span></div><div class="line" id="LC2">	<span class="nt">&lt;video</span> <span class="na">width=</span><span class="s">&quot;640&quot;</span> <span class="na">height=</span><span class="s">&quot;360&quot;</span> <span class="na">controls</span> <span class="na">autoplay</span><span class="nt">&gt;</span></div><div class="line" id="LC3">		<span class="c">&lt;!-- Adaptive Bitrate streaming --&gt;</span></div><div class="line" id="LC4">		<span class="nt">&lt;source</span> <span class="na">scr=</span><span class="s">&quot;http://www.url.to/video.m3u8&quot;</span> <span class="na">type=</span><span class="s">&quot;application/x-mpegURL&quot;</span> <span class="nt">/&gt;</span></div><div class="line" id="LC5">		<span class="nt">&lt;source</span> <span class="na">src=</span><span class="s">&quot;http://www.url.to/video.mp4&quot;</span> <span class="na">type=</span><span class="s">&quot;video/mp4&quot;</span> <span class="nt">/&gt;</span></div><div class="line" id="LC6">		<span class="nt">&lt;source</span> <span class="na">src=</span><span class="s">&quot;http://www.url.to/video.webm&quot;</span> <span class="na">type=</span><span class="s">&quot;video/webm&quot;</span> <span class="nt">/&gt;</span></div><div class="line" id="LC7">		<span class="nt">&lt;source</span> <span class="na">src=</span><span class="s">&quot;http://www.url.to/video.ogg&quot;</span> <span class="na">type=</span><span class="s">&quot;video/ogg&quot;</span> <span class="nt">/&gt;</span></div><div class="line" id="LC8">		<span class="nt">&lt;object</span> <span class="na">type=</span><span class="s">&quot;application/x-shockwave-flash&quot;</span> <span class="na">data=</span><span class="s">&quot;player.swf&quot;</span> <span class="na">width=</span><span class="s">&quot;640&quot;</span> <span class="na">height=</span><span class="s">&quot;360&quot;</span><span class="nt">&gt;</span></div><div class="line" id="LC9">			<span class="nt">&lt;param</span> <span class="na">name=</span><span class="s">&quot;movie&quot;</span> <span class="na">value=</span><span class="s">&quot;player.swf&quot;</span> <span class="nt">/&gt;</span></div><div class="line" id="LC10">			<span class="nt">&lt;param</span> <span class="na">name=</span><span class="s">&quot;allowscriptaccess&quot;</span> <span class="na">value=</span><span class="s">&quot;never&quot;</span> <span class="nt">/&gt;</span></div><div class="line" id="LC11">			<span class="nt">&lt;param</span> <span class="na">name=</span><span class="s">&quot;flashvars&quot;</span> <span class="na">value=</span><span class="s">&quot;autostart=true&amp;amp;controlbar=over&amp;amp;image=images/poster.jpg&amp;amp;file=http://www.url.to/video.mp4&quot;</span> <span class="nt">/&gt;</span></div><div class="line" id="LC12">			<span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">&quot;images/poster.jpg&quot;</span> <span class="na">alt=</span><span class="s">&quot;No video playback capabilities, please download the video below&quot;</span> <span class="nt">/&gt;</span></div><div class="line" id="LC13">		<span class="nt">&lt;/object&gt;</span></div><div class="line" id="LC14">	<span class="nt">&lt;/video&gt;</span></div><div class="line" id="LC15">	<span class="nt">&lt;p&gt;</span>Download the video <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;http://www.url.to/video.mp4&quot;</span><span class="nt">&gt;</span>(mp4)<span class="nt">&lt;/a&gt;</span> <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;http://www.url.to/video.ogg&quot;</span><span class="nt">&gt;</span>(ogg)<span class="nt">&lt;/a&gt;&lt;/p&gt;</span> </div><div class="line" id="LC16"><span class="nt">&lt;/body&gt;</span></div></pre></div>
+          </td>
+        </tr>
+      </table>
+  </div></p>
+
+<p>That&rsquo;s it!  iPhones and iPads and any other devices that support HTTP Live Streaming will receive the m3u8 streaming file, HTML5 capable browsers will get a supported video file, and browsers that don&rsquo;t support HTML5 will get a Flash video.</p>
+
+<p>If you run into problems, check and double check the Video for Everybody instructions &ndash; there are lots of little gotchas with some browsers.</p>
+
+<h3>Further Reading</h3>
+
+<ul>
+<li><p><a href="http://developer.apple.com/library/ios/#documentation/NetworkingInternet/Conceptual/StreamingMediaGuide/Introduction/Introduction">http://developer.apple.com/library/ios/#documentation/NetworkingInternet/Conc...</a>.html</p></li>
+<li><p><a href="http://help.encoding.com/idx.php/21/132/article/iphone-http-streaming.html">http://help.encoding.com/idx.php/21/132/article/iphone-http-streaming.html</a></p></li>
+<li><p><a href="http://www.ioncannon.net/programming/452/iphone-http-streaming-with-ffmpeg-and-an-open-source-segmenter/">http://www.ioncannon.net/programming/452/iphone-http-streaming-with-ffmpeg-an...</a></p></li>
+<li><p><a href="http://www.scribd.com/doc/20173481/iPhone-Streaming">http://www.scribd.com/doc/20173481/iPhone-Streaming</a></p></li>
+</ul>

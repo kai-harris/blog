@@ -1,0 +1,62 @@
+title: Import Quickbooks Online to Salesforce
+date: 2010/08/11 23:04:00 -0700
+tags: [{"name":"howto","id":15024061},{"name":"integration","id":15024060},{"name":"salesforce","id":15024059}]
+author: Kai Harris
+alias: /import-quickbooks-online-to-salesforce
+
+<p><img title="BECAS Scholar David" src="http://posterous.com/getfile/files.posterous.com/temp-2010-08-11/rBFaxDyefjacsErfADzGBqezarAbnrjuilBzHwubmBxGyJnGDHEApIzeadzC/alex-225x300.jpeg.thumb100.jpg?content_part=pid___0" alt="BECAS Scholar David" /><br />
+I&rsquo;m on the Board of a great organization (shameless plug: <a href="http://www.becas-foundation.org/">BECAS Foundation</a> changes life&rsquo;s direction for kids in Quito, Ecuador).  We&rsquo;re a <a href="http://www.compasspoint.org/boardcafe/details.php?id=107">working board</a> &ndash; our sole staff person runs the day to day operations in Ecuador but everything else is done by the Board.  I&rsquo;m the Technology Guy, so I get to solve problems like this:</p>
+
+<p>We were recently approved for a Salesforce license donation and now we need to import all our donor records from the hosted version of QuickBooks, QuickBooks Online into our brand new Salesforce instance.</p>
+
+<p>Should be easy, right?</p>
+
+<p>Well, kinda.  QuickBooks data doesn&rsquo;t quite match up to the fields Salesforce expects &ndash; the biggest problem is that QuickBooks has a single name field while Salesforce has three.  Additionally, the nonprofit version of Salesforce can group folks who live together into Households, so part of the QuickBooks data cleansing is prepping Household import.  The following are the steps I took to export data from Quickbooks Online and then cleanse the data before importing into Salesforce.  Your mileage may vary.</p>
+
+<p>First, you&rsquo;ll need the Plus version of QuickBooks Online, which enables exporting to Excel.  We&rsquo;ve upgraded for a month to get our data migrated over and then we&rsquo;ll drop back down to the Basic version.</p>
+
+<h2>Create and Export a Contact report</h2>
+
+<p>Under the &lsquo;Reports&rsquo; dropdown, select the last &lsquo;More Reports&rsquo; option and the scroll down to the Donor section.  The last one is the Donor Contact List.  Click the Customize button, then the Customize Columns button in the resulting pop-up.</p>
+
+<p>Remove the Billing Address, Shipping Address, and Phone Numbers columns &ndash; these fields aggregate the whole address and all phone numbers instead of listing each element in a separate column.  Add the address detail columns (street, city, state, zip) and the phone column.</p>
+
+<p>Close the Customize Columns pop-up and you&rsquo;re back at the Customize Report pop-up.  Scroll to the bottom and unselect all the Header/Footer options, these can interfere with the import.</p>
+
+<p>Run the Report and when satisfied that all the necessary data is present, click the Excel button to export it.</p>
+
+<h2>Clean up your data</h2>
+
+<p>The Excel export now has donors with full names like Jane Doe, John and Jane Doe, Jane Doe and John Donor, and Good Works Foundation.  We will need to split up those names so first name and last name are in their own fields.</p>
+
+<p>First, organize the Excel file by adding new columns and worksheets.  I added Title, First Name, and Last Name columns as well as Households and Organizations worksheets.  I then moved all the &ldquo;John and Jane Doe&rdquo; and &ldquo;Jane Doe and John Donor&rdquo; type records into the Household worksheet and the &ldquo;Good Works Foundation&rdquo; type records into the Organizations worksheet.  The first worksheet now only has individual records in the &ldquo;Jane Doe&rdquo; format.  If any entries have a title, remove the title and paste it into the Title column.</p>
+
+<p>Now, use the following formulas to split up the full name into two separate first and last name fields.</p>
+
+<p>First Name</p>
+
+<div class="CodeRay">
+  <div class="code"><pre>=LEFT(A1,SEARCH(&quot; &quot;,A1))</pre></div>
+</div>
+
+
+<p>Last Name</p>
+
+<div class="CodeRay">
+  <div class="code"><pre>=RIGHT(A1,(LEN(A1) - SEARCH(&quot; &quot;,A1)))</pre></div>
+</div>
+
+
+<p>The Households worksheet will take some additional manual scrubbing.  We need to create unique rows for both John and Jane Doe.  I&rsquo;m sure there is a more automated way of handling this, but since I only had ~40 records I ended up with a fairly manual process.</p>
+
+<p>Duplicate the Full Name column into a new column labeled Household.  Copy each row and then insert it directly below the copied row.  Now edit the Full Name field for each of the two rows so that one of them reads John Doe and the other reads Jane Doe.  And now you can use the same formulas to split full name into separate first and last name fields.</p>
+
+<p>The Organizations worksheet could, for me, be imported with little to no data cleansing.</p>
+
+<p>Save the three worksheets as their own CSV files and they&rsquo;re ready to go.</p>
+
+<h2>Import to Salesforce</h2>
+
+<p>With the clean data we&rsquo;ve created, importing to Salesforce is easy and very well documented.  I used the Import Wizard but you might want to use the <a href="http://wiki.developerforce.com/index.php/Data_Loader">Data Loader</a> or <a href="http://www.crmfusion.com/">Demand Tools / People Importer</a>.  I need to get my Windows virtual machine back up and running so I can use the excellent Demand Tools suite again.</p>
+
+<p>Now to tackle the donation records&hellip;</p>
