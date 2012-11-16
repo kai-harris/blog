@@ -1,4 +1,4 @@
-title: Getting Started
+Getting Started
 
 
 This page will help you get started with Telegram!  Yay!
